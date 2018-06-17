@@ -1,4 +1,5 @@
 ## Pi-hole regex filters
+https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list
 
 This regex list has been created with the wildcards identified from my work on a [Knox Firewall host file](https://github.com/mmotti/mmotti-host-file).
 
