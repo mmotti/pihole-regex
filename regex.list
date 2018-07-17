@@ -1,12 +1,13 @@
-^adse?rve?r?[0-9]*\.
-^adimages?\.
 ^ad(s|v|vert|vertising)?[0-9]*\.
+^adimages?\.
+^adse?rve?r?[0-9]*\.
 ^adx\.
-^aff(iliates?)?\.
+^aff(iliates?|iliation)?\.
 ^analytics?\.
 ^banners?\.
+^beacon\.
 ^clicks?\.
-^counter\.
+^count(er)?\.
 ^pixel\.
 ^stats?\.
 ^track(er|ing)?\.
