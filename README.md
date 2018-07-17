@@ -10,7 +10,7 @@ In order to utilise this list, it is currently necessary to be on the **developm
 
 ### Installation
 1. Copy `regex.list` to `/etc/pihole/` (`/etc/pihole/regex.list`)
-2. Restart the Pi-hole FTL service (`sudo service pihole-FTL restart`) 
+2. Reload the regex filter (`sudo killall -SIGHUP pihole-FTL`)
 
 OR
 
@@ -19,4 +19,4 @@ OR
 3. Press `CTRL` and `X`
 4. Press `Y`
 5. Press `Enter`
-6. Restart the Pi-hole FTL service (`sudo service pihole-FTL restart`) 
+6. Reload the regex filter (`sudo killall -SIGHUP pihole-FTL`)
