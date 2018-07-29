@@ -1,4 +1,6 @@
-^ad(s(ense)?|x|v(ert(s|is(ing|ements?))?)?)?[0-9]*[-_.]
+^ad(x|v)?[0-9]*[-_.]
+^ads[0-9]*[-_.]
+^advert(s|is(ing|ements?))?[0-9]*[-_.]
 ^adse?rv(e(rs?)?|ices?)?[0-9]*[-.]
 ^adtrack(er|ing)?[0-9]*[-.]
 ^aff(iliat(es?|ion))?[-.]
