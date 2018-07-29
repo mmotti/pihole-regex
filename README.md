@@ -1,8 +1,6 @@
 ## Pi-hole regex filters
 https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list
 
-This regex list has been created with the wildcards identified from my work on a [Knox Firewall host file](https://github.com/mmotti/mmotti-host-file).
-
 As Pi-hole allows much greater flexibility with regex filtering, this list is expected to grow and deviate from the standard `*.something` or `something.*`
 
 ### Important Note
