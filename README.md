@@ -3,11 +3,19 @@ This is a custom (unofficial) **regex.list** file for use with Pi-hole **version
 
 https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list
 
-### Installation
-1. Open up Putty (or your choice of SSH client) and login to your device.
+### Installation Instructions
+1. Open up Putty (or your choice of SSH client) and login to your device
 2. Run the following commands:
 ```
 sudo curl https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list -o /etc/pihole/regex.list
+sudo killall -SIGHUP pihole-FTL
+```
+
+### Removal Instructions
+1. Open up Putty (or your choice of SSH client) and login to your device
+2. Run the following commands:
+```
+sudo bash -c "> /etc/pihole/regex.list"
 sudo killall -SIGHUP pihole-FTL
 ```
 
