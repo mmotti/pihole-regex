@@ -4,17 +4,14 @@ This is a custom (unofficial) **regex.list** file for use with Pi-hole **version
 https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list
 
 ### Installation
-To successfully enable regex blocking we need to create a regex.list file, save it in the appropriate directory and tell Pi-hole FTL to reload the config.
+1. Open up Putty (or your choice of SSH client) and login to your device. In my case, the IP address for my Raspberry Pi is `192.168.1.2`.
+2. Login with your user account (default: `pi`).
 
-The following instructions have been tested on a Raspberry Pi 3 Model B running Raspian Stretch, in the context of the default `pi` user account.
-
-First of all, open up Putty (or your choice of SSH client) and login to your device. In my case, the IP address for my Raspberry Pi is `192.168.1.2`.
-
-Login with your user account (default: `pi`).
-
-Run the following commands:
-1. `sudo curl https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list -o /etc/pihole/regex.list`
-2. `sudo killall -SIGHUP pihole-FTL`
+3. Run the following commands:
+```
+sudo curl https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list -o /etc/pihole/regex.list
+sudo killall -SIGHUP pihole-FTL
+```
 
 ### Testing the regex filter
 See if you can access http://ads.sdsdsfdsgsf.com
