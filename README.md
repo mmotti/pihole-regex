@@ -20,8 +20,8 @@ sudo killall -SIGHUP pihole-FTL
 ```
 
 ### Testing the regex filter
-See if you can access http://ads.sdsdsfdsgsf.com
+See if you can access https://ad.pi-hole.net/
 
 Then check the query log in the Pi-hole admin console for your blocked domain. It should show as **Pi-holed (wildcard)**.
 
-![alt test](https://image.ibb.co/doq6Tz/Blocked.png)
+![alt test](https://image.ibb.co/j5kWTz/Blocked.png)
