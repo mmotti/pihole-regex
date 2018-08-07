@@ -4,10 +4,8 @@ This is a custom (unofficial) **regex.list** file for use with Pi-hole **version
 https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list
 
 ### Installation
-1. Open up Putty (or your choice of SSH client) and login to your device. In my case, the IP address for my Raspberry Pi is `192.168.1.2`.
-2. Login with your user account (default: `pi`).
-
-3. Run the following commands:
+1. Open up Putty (or your choice of SSH client) and login to your device.
+2. Run the following commands:
 ```
 sudo curl https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list -o /etc/pihole/regex.list
 sudo killall -SIGHUP pihole-FTL
