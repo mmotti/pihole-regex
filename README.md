@@ -17,7 +17,7 @@ sort -u <<< "$list" | grep -v "#" | sudo tee /etc/pihole/regex.list
 1. Open up Putty (or your choice of SSH client) and login to your device
 2. Run the following commands:
 ```
-sudo bash -c "> /etc/pihole/regex.list"
+grep "^(\^|.*\$$" /etc/pihole/regex.list | sudo tee /etc/pihole/regex.list"
 sudo killall -SIGHUP pihole-FTL
 ```
 
