@@ -15,6 +15,6 @@
 ^track(ers?|ing)?[0-9]*[-.]
 ^traff(ic)?[-.]
 # Wildcard suffixes
-(\.|^)amazon-adsystem\.com$
-(\.|^)kaffnet\.com$
-(\.|^)startapp(exchange|network|service)\.com$
+amazon-adsystem\.com$
+kaffnet\.com$
+startapp(exchange|network|service)\.com$
