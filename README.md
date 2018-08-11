@@ -19,7 +19,7 @@ sed -E -i '/(amazon-adsystem|kaffnet|startapp\(exchange)/d' /etc/pihole/regex.li
 list="$(grep "^(\^|.*\$$" /etc/pihole/regex.list)"
 list+="
 $(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list)"
-LC_COLLATE=C sort -u <<< "$list" | grep -v "^#" | sudo tee /etc/pihole/regex.list
+LC_COLLATE=C sort -u <<< "$list" | grep -v "^#" | grep -v '^[[:space:]]*$' | sudo tee /etc/pihole/regex.list
 sudo killall -SIGHUP pihole-FTL
 ```
 
