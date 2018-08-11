@@ -1,5 +1,5 @@
 ## Regex Filters for Pi-hole
-This is a custom `regex.list `file for use with Pi-hole v4+ (FTLDNS).
+This is a custom `regex.list` file for use with Pi-hole v4+ (FTLDNS).
 
 All commands will need to be entered via Terminal (PuTTY or your SSH client of choice) after logging in.
 
@@ -20,6 +20,7 @@ list="$(grep "^(\^|.*\$$" /etc/pihole/regex.list)"
 list+="
 $(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list)"
 sort -u <<< "$list" | grep -v "#" | sudo tee /etc/pihole/regex.list
+sudo killall -SIGHUP pihole-FTL
 ```
 
 ### Removal Instructions
