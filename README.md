@@ -5,10 +5,12 @@ Please be aware that the removal instructions will delete any custom wildcards t
 
 ### Installation Instructions
 1. Open up Putty (or your choice of SSH client) and login to your device
-2. Run the following commands:
+2. Run the following commands (Credit: [@WaLLy3K](https://github.com/WaLLy3K)):
 ```
-wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list | sudo tee -a /etc/pihole/regex.list
-sudo killall -SIGHUP pihole-FTL
+list="$(grep "^(\^|.*\$$" /etc/pihole/regex.list)"
+list+="
+$(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list)"
+sort -u <<< "$list" | grep -v "#" | sudo tee /etc/pihole/regex.list
 ```
 
 ### Removal Instructions
