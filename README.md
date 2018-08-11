@@ -1,7 +1,7 @@
 ## Pi-hole regex filters
 This is a custom (unofficial) regex.list file for use with Pi-hole version 4 or above.
 
-Please be aware that the removal instructions will delete any custom wildcards that you have specified to be blocked; so don't forget to make a note of these before continuing.
+Please consider making a backup of `/etc/pihole/regex.list` prior to running installation, or removal. 
 
 ### Installation Instructions
 1. Open up Putty (or your choice of SSH client) and login to your device
