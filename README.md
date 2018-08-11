@@ -1,11 +1,20 @@
-## Pi-hole regex filters
-This is a custom (unofficial) regex.list file for use with Pi-hole version 4 or above.
+## Regex Filters for Pi-hole
+This is a custom `regex.list `file for use with Pi-hole v4+ (FTLDNS).
 
-Please consider making a backup of `/etc/pihole/regex.list` prior to running installation, or removal. 
+All commands will need to be entered via Terminal (PuTTY or your SSH client of choice) after logging in.
+
+### [OPTIONAL] Back up your existing regex list
+```
+sudo cp /etc/pihole/regex.list /etc/pihole/regex.list.bak
+```
+
+### [OPTIONAL] Remove old Wildcard Suffixes
+If you've installed this list prior to 11 August 2018, you will want to remove the old Wildcard Suffixes
+```
+sed -E -i '/(amazon-adsystem|kaffnet|startapp\(exchange)/d' /etc/pihole/regex.list
+```
 
 ### Installation Instructions
-1. Open up Putty (or your choice of SSH client) and login to your device
-2. Run the following commands (Credit: [@WaLLy3K](https://github.com/WaLLy3K)):
 ```
 list="$(grep "^(\^|.*\$$" /etc/pihole/regex.list)"
 list+="
@@ -14,8 +23,6 @@ sort -u <<< "$list" | grep -v "#" | sudo tee /etc/pihole/regex.list
 ```
 
 ### Removal Instructions
-1. Open up Putty (or your choice of SSH client) and login to your device
-2. Run the following commands:
 ```
 grep "^(\^|.*\$$" /etc/pihole/regex.list | sudo tee /etc/pihole/regex.list"
 sudo killall -SIGHUP pihole-FTL
