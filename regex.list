@@ -1,4 +1,3 @@
-# Prefixes
 ^ad([sxv])?[0-9]*[-_.]
 ^advert(s|is(ing|ements?))?[0-9]*[-_.]
 ^adse?rv(e(rs?)?|ices?)?[0-9]*[-.]
@@ -14,7 +13,3 @@
 ^telemetry[-.]
 ^track(ers?|ing)?[0-9]*[-.]
 ^traff(ic)?[-.]
-# Wildcard suffixes
-amazon-adsystem\.com$
-kaffnet\.com$
-startapp(exchange|network|service)\.com$
