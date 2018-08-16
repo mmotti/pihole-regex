@@ -1,4 +1,4 @@
-^(.*[-_.])??ad[sxv]?[0-9]*[-_.]
+\bad[sxv]?[0-9]*\b[-_.]
 ^adse?rv(e(rs?)?|ices?)?[0-9]*[-.]
 ^adtrack(er|ing)?[0-9]*[-.]
 ^advert(s|is(ing|ements?))?[0-9]*[-_.]
