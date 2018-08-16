@@ -22,6 +22,7 @@ list+="
 $(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list)"
 LC_COLLATE=C sort -u <<< "$list" | grep -v "^#" | grep -v '^[[:space:]]*$' | sudo tee /etc/pihole/regex.list
 killall -SIGHUP pihole-FTL
+exit
 ```
 
 ### Removal Instructions
@@ -29,6 +30,7 @@ killall -SIGHUP pihole-FTL
 sudo bash
 grep "^(\^|.*\$$" /etc/pihole/regex.list | sudo tee "/etc/pihole/regex.list"
 killall -SIGHUP pihole-FTL
+exit
 ```
 
 ### Testing the regex filter
