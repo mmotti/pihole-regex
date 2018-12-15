@@ -7,7 +7,6 @@
 ^analytics?[-.]
 ^banners?[-.]
 ^beacons?[0-9]*[-.]
-^clicks?[-.]
 ^count(ers?)?[0-9]*[-.]
 ^pixels?[-.]
 ^stat(s|istics)?[0-9]*[-.]
