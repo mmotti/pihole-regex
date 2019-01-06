@@ -1,27 +1,46 @@
 ## Regex Filters for Pi-hole
 This is a custom `regex.list` file for use with Pi-hole v4+ (FTLDNS).
 
-All commands will need to be entered via Terminal (PuTTY or your SSH client of choice) after logging in.
+All commands will need to be entered (copy/paste) via Terminal (PuTTY or your SSH client of choice) after logging in.
+
+## Warning ##
+**The install commands will remove all custom regexps that are not in the standard Pi-hole wildcard regexp format (e.g. `(^|\.)test\.com$`)**. If you have specified your own custom regexps it is recommended that you make a backup before continuing.
 
 ### [OPTIONAL] Back up your existing regex list
 ```
 sudo cp /etc/pihole/regex.list /etc/pihole/regex.list.bak
 ```
 
-### [OPTIONAL] Remove old Wildcard Suffixes
-If you've installed this list prior to 11 August 2018, you will want to remove the old Wildcard Suffixes
-```
-sed -E -i '/(amazon-adsystem|kaffnet|startapp\(exchange)/d' /etc/pihole/regex.list
-```
-
 ### Installation Instructions
 ```
 sudo bash
-list="$(grep "^(\^|.*\$$" /etc/pihole/regex.list)"
-list+="
-$(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list)"
-LC_COLLATE=C sort -u <<< "$list" | grep -v "^#" | grep -v '^[[:space:]]*$' | sudo tee /etc/pihole/regex.list
+
+# Get existing Pi-hole style wildcards
+# (^|\.)test\.com$
+pihole_wildcards="$(grep "^(\^|.*\$$" /etc/pihole/regex.list)"
+
+# Fetch mmotti regex.list
+mmotti_regex=$(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list)
+
+# Exit if unable to download list
+if [ -z "$mmotti_regex" ]; then
+	echo "Error: Unable to fetch mmotti regex.list"
+	exit
+fi
+
+# Form output (preserving Pi-hole wildcards)
+if [ -z "$pihole_wildcards" ]; then
+	final_regex=$(printf "%s\n" "$mmotti_regex")
+else
+	final_regex=$(printf "%s\n" "$mmotti_regex" "$pihole_wildcards")
+fi
+
+# Output to regex.list
+LC_COLLATE=C sort -u <<< "$final_regex" | sudo tee /etc/pihole/regex.list
+
+# Refresh Pi-hole
 killall -SIGHUP pihole-FTL
+
 exit
 ```
 
