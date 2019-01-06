@@ -24,4 +24,4 @@ fi
 LC_COLLATE=C sort -u <<< "$final_regex" | sudo tee /etc/pihole/regex.list
 
 # Refresh Pi-hole
-killall -SIGHUP pihole-FTL
+sudo killall -SIGHUP pihole-FTL
