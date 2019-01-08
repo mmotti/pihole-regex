@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# shellcheck disable=SC1117
 # Get existing Pi-Hole style wildcards
 # (^|\.)test\.com$
 pihole_wildcards="$(grep "^(\^|.*\$$" /etc/pihole/regex.list)"
