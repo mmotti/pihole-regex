@@ -18,10 +18,7 @@ curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install.s
 
 ### Removal Instructions
 ```
-sudo bash
-grep "^(\^|.*\$$" /etc/pihole/regex.list | sudo tee "/etc/pihole/regex.list"
-killall -SIGHUP pihole-FTL
-exit
+curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/uninstall.sh | bash
 ```
 
 ### Testing the regex filter
