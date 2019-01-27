@@ -11,7 +11,6 @@ if [ -s "$file_pihole_regex" ] && [ -s "$file_mmotti_regex" ]; then
 	echo "[i] Removing mmotti's regex.list from a previous install"
 	comm -23 <(sort $file_pihole_regex) <(sort $file_mmotti_regex) | sudo tee $file_pihole_regex > /dev/null
 	sudo rm -f $file_mmotti_regex
-	exit
 fi
 
 # Fetch mmotti regex.list
