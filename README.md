@@ -3,9 +3,6 @@ This is a custom `regex.list` file for use with Pi-hole v4+ (FTLDNS).
 
 All commands will need to be entered via Terminal (PuTTY or your SSH client of choice) after logging in.
 
-## Warning ##
-**The install process will remove all custom regexps that are not in the standard Pi-hole wildcard regexp format (e.g. `(^|\.)test\.com$`)**. If you have specified your own custom regexps it is recommended that you make a backup before continuing.
-
 ### [OPTIONAL] Back up your existing regex list
 ```
 sudo cp /etc/pihole/regex.list /etc/pihole/regex.list.bak
