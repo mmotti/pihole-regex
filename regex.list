@@ -1,6 +1,6 @@
+^(.+[-_.])??adse?rv(er?|ice)?s?[0-9]*[-.]
 ^(.+[-_.])??m?ad[sxv]?[0-9]*[-_.]
 ^adim(age|g)s?[0-9]*[-_.]
-^(.+[-_.])??adse?rv(er?|ice)?s?[0-9]*[-.]
 ^adtrack(er|ing)?[0-9]*[-.]
 ^advert(s|is(ing|ements?))?[0-9]*[-_.]
 ^aff(iliat(es?|ion))?[-.]
@@ -13,3 +13,4 @@
 ^telemetry[-.]
 ^track(ers?|ing)?[0-9]*[-.]
 ^traff(ic)?[-.]
+^xn--
