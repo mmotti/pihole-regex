@@ -107,7 +107,6 @@ if [[ "${usingDB}" == true ]]; then
 			if [[ -n "${removalStr}" ]]; then
 				echo '[i] Running removal query'
 				updateDB "${removalStr}" "remove_pre_migrated"
-				exit 0
 			fi
 		fi
 	else
