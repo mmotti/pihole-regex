@@ -14,7 +14,6 @@ if [[ -e "${db_gravity}" ]] && [[ -s "${db_gravity}" ]]; then
 fi
 
 # Functions
-
 function fetchResults {
 
 	local selection="${1}" action="${2}" queryStr
@@ -25,8 +24,6 @@ function fetchResults {
 	# Determine course of action
 	case "${action}" in
 		migrated_regexps ) queryStr="Select ${selection} FROM regex WHERE comment='${installer_comment}'";;
-		user_created     ) queryStr="Select ${selection} FROM regex WHERE comment IS NULL OR comment!='${installer_comment}'";;
-		current_id       ) queryStr="Select ${selection} FROM regex ORDER BY id DESC LIMIT 1";;
 		*                ) queryStr="Select ${selection} FROM regex";;
 	esac
 
@@ -59,14 +56,24 @@ function updateDB() {
 	return
 }
 
+echo "[i] Fetching mmotti's regexps"
+mmotti_remote_regex=$(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list | grep '^[^#]')
+[[ -z "${mmotti_remote_regex}" ]] && { echo '[i] Failed to download mmotti regex list'; exit 1; }
+
+echo '[i] Fetching existing regexps'
+
+# Conditional (db / old) variables
+if [[ "${usingDB}" == true ]]; then
+	str_regex=$(fetchResults "domain")
+else
+	str_regex=$(grep '^[^#]' < "${file_pihole_regex}")
+fi
+
 # If we are uninstalling from the Pi-hole DB, we need to accommodate for
 # pi-hole migrated and installer migrated
 
 # If we are using the DB
 if [[ "${usingDB}" == true ]]; then
-	echo '[i] Fetching regexps in gravity DB'
-	str_regex=$(fetchResults "domain")
-
 	# If there are regexps in the DB
 	if [[ -n "${str_regex}" ]] ; then
 		echo '[i] Checking for previous migration'
@@ -91,11 +98,6 @@ if [[ "${usingDB}" == true ]]; then
 					removalStr=$(printf "'%s'," "${result[@]}" | sed 's/,$//')
 				fi
 			else
-				# Fetch remote regexps
-				echo "[i] Fetching mmotti's regexps"
-				mmotti_remote_regex=$(sudo wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list | grep '^[^#]')
-				[[ -z "${mmotti_remote_regex}" ]] && { echo '[i] Failed to download mmotti regex list'; exit 1; }
-
 				mapfile -t result <<< "$(comm -12 <(sort <<< "${str_regex}") <(sort <<< "${mmotti_remote_regex}"))"
 				if [[ -n "${result[*]}" ]]; then
 					echo '[i] Forming removal string'
@@ -119,22 +121,29 @@ if [[ "${usingDB}" == true ]]; then
 	sudo killall -SIGHUP pihole-FTL
 
 else
-	# Restore config prior to previous install
-	# Keep entries only unique to pihole regex
-	if [ -s "$file_pihole_regex" ] && [ -s "$file_mmotti_regex" ]; then
-		echo "[i] Removing mmotti's regex.list from a previous install"
-		comm -23 <(sort $file_pihole_regex) <(sort $file_mmotti_regex) | sudo tee $file_pihole_regex > /dev/null
-		sudo rm -f $file_mmotti_regex
+	# Removal for standard regex.list (non-db)
+	# If the pihole regex.list is not empty
+	if [[ -n "${str_regex}" ]]; then
+		# Restore config prior to previous install
+		# Keep entries only unique to pihole regex
+		if [[ -s "${file_mmotti_regex}" ]]; then
+			echo "[i] Removing mmotti's regex.list from a previous install"
+			comm -23 <(sort <<< "${str_regex}") <(sort "${file_mmotti_regex}") | sudo tee $file_pihole_regex > /dev/null
+			sudo rm -f "${file_mmotti_regex}"
+		else
+			# In the event that file_mmotti_regex is not available
+			# Match against the latest remote list instead
+			echo "[i] Removing mmotti's regex.list from a previous install"
+			comm -23 <(sort <<< "${str_regex}") <(sort <<< "${mmotti_remote_regex}") | sudo tee $file_pihole_regex > /dev/null
+		fi
 	else
-		echo "[i] The circumstances are not appropriate for automated removal"
-		exit
+		echo '[i] Regex.list is empty. No need to process.'
+		exit 0
 	fi
 
 	# Refresh Pi-hole
 	echo "[i] Refreshing Pi-hole"
 	sudo killall -SIGHUP pihole-FTL
 
-	# Output to user
-	echo $'\n'
-	cat $file_pihole_regex
+	echo "[i] Done"
 fi

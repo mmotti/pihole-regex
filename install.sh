@@ -58,7 +58,7 @@ function updateDB() {
 }
 
 echo "[i] Fetching mmotti's regexps"
-mmotti_remote_regex=$(sudo wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list | grep '^[^#]')
+mmotti_remote_regex=$(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list | grep '^[^#]')
 [[ -z "${mmotti_remote_regex}" ]] && { echo '[i] Failed to download mmotti regex list'; exit 1; }
 
 echo '[i] Fetching existing regexps'
@@ -67,7 +67,6 @@ echo '[i] Fetching existing regexps'
 if [[ "${usingDB}" == true ]]; then
 	str_regex=$(fetchResults "domain")
 else
-	[[ ! -s "${file_pihole_regex}" ]] && { echo "[i] ${file_pihole_regex} is empty or does not exist"; exit 1; }
 	str_regex=$(grep '^[^#]' < "${file_pihole_regex}")
 fi
 
@@ -163,45 +162,43 @@ if [[ "${usingDB}" == true ]]; then
 
 	exit
 else
-	# Restore config prior to previous install
-	# Keep entries only unique to pihole regex
-	if [ -s "$file_pihole_regex" ] && [ -s "$file_mmotti_regex" ]; then
-		echo "[i] Removing mmotti's regex.list from a previous install"
-		comm -23 <(sort $file_pihole_regex) <(sort $file_mmotti_regex) | sudo tee $file_pihole_regex > /dev/null
-		sudo rm -f $file_mmotti_regex
+	if [[ -n "${str_regex}" ]]; then
+		# Restore config prior to previous install
+		# Keep entries only unique to pihole regex
+		if [[ -s "${file_mmotti_regex}" ]]; then
+			echo "[i] Removing mmotti's regex.list from a previous install"
+			comm -23 <(sort <<< "${str_regex}") <(sort "${file_mmotti_regex}") | sudo tee $file_pihole_regex > /dev/null
+			sudo rm -f "${file_mmotti_regex}"
+		else
+			# In the event that file_mmotti_regex is not available
+			# Match against the latest remote list instead
+			echo "[i] Removing mmotti's regex.list from a previous install"
+			comm -23 <(sort <<< "${str_regex}") <(sort <<< "${mmotti_remote_regex}") | sudo tee $file_pihole_regex > /dev/null
+		fi
 	fi
 
-	# Fetch mmotti regex.list
-	echo "[i] Fetching mmotti's regex.list"
-	sudo wget -qO "$file_mmotti_regex" https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list
+	# Copy latest regex list to file_mmotti_regex dir
+	echo "[i] Copying remote regex.list to ${file_mmotti_regex}"
+	echo "${mmotti_remote_regex}" | sudo tee "${file_mmotti_regex}" > /dev/null
 
-	# Exit if unable to download list
-	if [ ! -s "$file_mmotti_regex" ]; then
-			echo "Error: Unable to fetch mmotti regex.list"
-			exit
-	else
-			mmotti_regex="$(cat $file_mmotti_regex)"
-			echo "[i] $(wc -l <<< "$mmotti_regex") regexps found in mmotti's regex.list"
-	fi
+	# Status update
+	echo "[i] $(wc -l <<< "${mmotti_remote_regex}") regexps found in mmotti's regex.list"
 
-	# Check existing configuration
-	if [ -s "$file_pihole_regex" ]; then
+	# If pihole regex is not empty after changes
+	if [[ -s "${file_pihole_regex}" ]]; then
 		# Extract non mmotti-regex entries
-		existing_regex_list="$(cat $file_pihole_regex)"
-
+		existing_regex_list="$(grep '^[^#]' < "${file_pihole_regex}")"
 		# Form output (preserving existing config)
-			echo "[i] $(wc -l <<< "$existing_regex_list") regexps exist outside of mmotti's regex.list"
-			final_regex=$(printf "%s\n" "$mmotti_regex" "$existing_regex_list")
-
+		echo "[i] $(wc -l <<< "$existing_regex_list") regexps exist outside of mmotti's regex.list"
+		final_regex=$(printf "%s\n" "${mmotti_remote_regex}" "${existing_regex_list}")
 	else
 		echo "[i] No regex.list differences to mmotti's regex.list"
-		final_regex=$(printf "%s\n" "$mmotti_regex")
-
+		final_regex=$(printf "%s\n" "$mmotti_remote_regex")
 	fi
 
 	# Output to regex.list
-	echo "[i] Saving to $file_pihole_regex"
-	LC_COLLATE=C sort -u <<< "$final_regex" | sudo tee $file_pihole_regex > /dev/null
+	echo "[i] Saving to ${file_pihole_regex}"
+	LC_COLLATE=C sort -u <<< "${final_regex}" | sudo tee $file_pihole_regex > /dev/null
 
 	# Refresh Pi-hole
 	echo "[i] Refreshing Pi-hole"
