@@ -8,7 +8,7 @@ file_mmotti_regex='/etc/pihole/mmotti-regex.list'
 installer_comment='github.com/mmotti/pihole-regex'
 
 # Determine whether we are using Pi-hole DB
-if [[ -e "${db_gravity}" ]] || [[ -s "${db_gravity}" ]]; then
+if [[ -e "${db_gravity}" ]] && [[ -s "${db_gravity}" ]]; then
 	usingDB=true
 fi
 
@@ -152,6 +152,9 @@ if [[ "${usingDB}" == true ]]; then
 	[[ "${status}" -ne 0 ]]  && echo '[i] An error occured whilst importing the CSV into the database' && exit 1
 	# Output current regexps to user
 	echo '[i] Regex import complete'
+	# Refresh Pi-hole
+	echo '[i] Refreshing Pi-hole'
+	sudo killall -SIGHUP pihole-FTL
 	# Remove the old mmotti-regex file
 	sudo rm -f "${file_mmotti_regex}"
 	# Output regexps currently in the DB
