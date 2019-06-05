@@ -3,8 +3,8 @@
 # Set variables
 db_gravity='/etc/pihole/gravity.db'
 file_pihole_regex='/etc/pihole/regex.list'
-file_csv_tmp="$(mktemp -p "/tmp" --suffix=".gravity")"
 file_mmotti_regex='/etc/pihole/mmotti-regex.list'
+file_mmotti_remote_regex='https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list'
 installer_comment='github.com/mmotti/pihole-regex'
 
 # Determine whether we are using Pi-hole DB
@@ -30,9 +30,10 @@ function fetchResults {
 
 	# Execute SQL query
 	sqlite3 ${db_gravity} "${queryStr}" 2>&1
+
 	# Check exit status
 	status="$?"
-	[[ "${status}" -ne 0 ]]  && echo '[i] An error occured whilst fetching results' && exit 1
+	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst fetching results'); exit 1; }
 
 	return
 }
@@ -50,46 +51,91 @@ function updateDB() {
 
 	# Execute SQL query
 	sudo sqlite3 ${db_gravity} "${queryStr}"
+
 	# Check exit status
 	status="$?"
-	[[ "${status}" -ne 0 ]]  && echo '[i] An error occured whilst updating database' && exit 1
+	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst updating database'); exit 1; }
+
+	return
+}
+
+function generateCSV() {
+
+	# Exit if there is a problem with the remoteRegex string
+	[[ -z "${1}" ]] && exit 1
+
+	local remoteRegex timestamp queryArr file_csv_tmp
+
+	# Set local variables
+	remoteRegex="${1}"
+	timestamp="$(date --utc +'%s')"
+	iteration="$(fetchResults "id" "current_id")"
+	file_csv_tmp="$(mktemp -p "/tmp" --suffix=".csv")"
+
+	# Create array to hold import string
+	declare -a queryArr
+
+	# Start of processing
+	# If we got the id of the last item in the regex table, iterate once
+	# Otherwise set the iterator to 1
+	[[ -n "${iteration}" ]] && ((iteration++)) || iteration=1
+
+	# Iterate through the remote regexps
+	# So long as the line is not empty, generate the CSV values
+	while read -r regexp; do
+		if [[ -n "${regexp}" ]]; then
+			queryArr+=("${iteration},\"${regexp}\",1,${timestamp},${timestamp},\"${installer_comment}\"")
+			((iteration++))
+		fi
+	done <<< "${remoteRegex}"
+
+	# If our array is populated then output the results to a temporary file
+	[[ "${#queryArr[@]}" -gt 0 ]] && printf '%s\n' "${queryArr[@]}" > "${file_csv_tmp}" || exit 1
+
+	# Output the CSV path
+	echo "${file_csv_tmp}"
 
 	return
 }
 
 echo "[i] Fetching mmotti's regexps"
-mmotti_remote_regex=$(wget -qO - https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list | grep '^[^#]')
+# Fetch the remote regex file and remove comment lines
+mmotti_remote_regex=$(wget -qO - "${file_mmotti_remote_regex}" | grep '^[^#]')
+# Conditional exit if empty
 [[ -z "${mmotti_remote_regex}" ]] && { echo '[i] Failed to download mmotti regex list'; exit 1; }
 
 echo '[i] Fetching existing regexps'
-
-# Conditional (db / old) variables
+# Conditionally fetch existing regexps depending on
+# whether the user has migrated to the Pi-hole DB or not
 if [[ "${usingDB}" == true ]]; then
 	str_regex=$(fetchResults "domain")
 else
 	str_regex=$(grep '^[^#]' < "${file_pihole_regex}")
 fi
 
+# Starting the install process
 # If we're using the Pi-hole DB
 if [[ "${usingDB}" == true ]]; then
-	# If there are regexps in the DB
+	# If we found regexps in the database
 	if [[ -n "${str_regex}" ]] ; then
 		echo '[i] Checking for previous migration'
-		# Check whether there are migrated entries
+		# Check whether this script has previously migrated our regexps
 		db_migrated_regexps=$(fetchResults "domain" "migrated_regexps")
 		# If migration is detected
 		if [[ -n "${db_migrated_regexps}" ]]; then
 			echo '[i] Previous migration detected'
-			# Check to see whether local DB is up-to-date
-			# Suppress lines that appear in both files
-			# If there are no differences between the local migrated regexps and remote regexps
-			# there is nothing to process
+			# As we have already migrated the user, we need to check
+			# whether the regexps in the database are up-to-date
 			echo '[i] Checking whether updates are required'
+			# Use comm -3 to suppress lines that appear in both files
+			# If there are any results returned, this will quickly tell us
+			# that there are discrepancies
 			updatesRequired=$(comm -3 <(sort <<< "${db_migrated_regexps}") <(sort <<< "${mmotti_remote_regex}"))
-			[[ -z "${updatesRequired}" ]] && echo '[i] Local regex filter is already up-to-date' && exit 0
-			# Otherwise we need to remove the existing migrated regexps
-			# and re-populate
+			# Conditional exit if no updates are required
+			[[ -z "${updatesRequired}" ]] && { echo '[i] Local regex filter is already up-to-date'; exit 0; }
+			# Now we know that updates are required, it's easiest to start a fresh
 			echo '[i] Running removal query'
+			# Clear our previously migrated domains from the regex table
 			updateDB "" "remove_migrated"
 		else
 			echo '[i] No previous migration detected'
@@ -97,70 +143,61 @@ if [[ "${usingDB}" == true ]]; then
 			# If we have a local mmotti-regex.list, read from that as it was used on the last install (pre-db)
 			# Otherwise, default to the latest remote copy
 			if [[ -e "${file_mmotti_regex}" ]] && [[ -s "${file_mmotti_regex}" ]]; then
+				# Only return regexps in both the regex table and regex file
 				mapfile -t result <<< "$(comm -12 <(sort <<< "${str_regex}") <(sort < "${file_mmotti_regex}"))"
-				if [[ -n "${result[*]}" ]]; then
-					echo '[i] Forming removal string'
-					removalStr=$(printf "'%s'," "${result[@]}" | sed 's/,$//')
-				fi
-			else
-				mapfile -t result <<< "$(comm -12 <(sort <<< "${str_regex}") <(sort <<< "${mmotti_remote_regex}"))"
-				if [[ -n "${result[*]}" ]]; then
-					echo '[i] Forming removal string'
-					removalStr=$(printf "'%s'," "${result[@]}" | sed 's/,$//')
-				fi
-			fi
 
-			# If we formed a removal string, then run it
-			if [[ -n "${removalStr}" ]]; then
-				echo '[i] Running removal query'
-				updateDB "${removalStr}" "remove_pre_migrated"
+			else
+				# Only return regexps in both the regex table and regex file
+				mapfile -t result <<< "$(comm -12 <(sort <<< "${str_regex}") <(sort <<< "${mmotti_remote_regex}"))"
+			fi
+			# If we have matches in both the regex table and regex file
+			if [[ -n "${result[*]}" ]]; then
+				echo '[i] Forming removal string'
+				# regexstring --> 'regexstring1','regexstring2',
+				# Then remove the trailing comma
+				removalStr=$(printf "'%s'," "${result[@]}" | sed 's/,$//')
+				# If our removal string is not empty (sanity check)
+				if [[ -n "${removalStr}" ]]; then
+					echo '[i] Running removal query'
+					# Remove regexps from the regex table if there are in the
+					# removal string
+					updateDB "${removalStr}" "remove_pre_migrated"
+				fi
 			fi
 		fi
 	else
 		echo '[i] No regexps currently exist in the database'
 	fi
 
-	# Status update
+	# Create our CSV
 	echo '[i] Generating CSV file'
+	csv_file=$(generateCSV "${mmotti_remote_regex}")
 
-	# Grab the current timestamp
-	timestamp="$(date --utc +'%s')"
-	# Fetch the current highest ID in the regex DB
-	# If there are no results
-	i=$(fetchResults "id" "current_id")
-	if [[ -z "${i}" ]]; then
-		# Set iterator to 1
-		i=1
-	else
-		# Increment the value by one
-		((i++))
-	fi
-	# Iterate through the remote regexps
-	# So long as the line is not empty, generate the CSV values
-	while read -r regexp; do
-		if [[ -n "${regexp}" ]]; then
-			echo "${i},\"${regexp}\",1,${timestamp},${timestamp},\"${installer_comment}\"" >> "${file_csv_tmp}"
-			((i++))
-		fi
-	done <<< "${mmotti_remote_regex}"
+	# Conditional exit
+	[[ ! -s "${csv_file}" ]] && { echo '[i] Error: Generated CSV is empty'; exit 1; }
+
 	# Construct correct input format for import
 	echo '[i] Importing CSV to DB'
-	printf ".mode csv\\n.import \"%s\" %s\\n" "${file_csv_tmp}" "regex" | sudo sqlite3 "${db_gravity}"
+	printf ".mode csv\\n.import \"%s\" %s\\n" "${csv_file}" "regex" | sudo sqlite3 "${db_gravity}"
+
 	# Check exit status
 	status="$?"
-	[[ "${status}" -ne 0 ]]  && echo '[i] An error occured whilst importing the CSV into the database' && exit 1
-	# Output current regexps to user
+	[[ "${status}" -ne 0 ]]  && { echo '[i] An error occured whilst importing the CSV into the database'; exit 1; }
+
+	# Status update
 	echo '[i] Regex import complete'
+
 	# Refresh Pi-hole
 	echo '[i] Refreshing Pi-hole'
 	sudo killall -SIGHUP pihole-FTL
-	# Remove the old mmotti-regex file
-	sudo rm -f "${file_mmotti_regex}"
-	# Output regexps currently in the DB
-	printf '\n'
-	fetchResults "domain"
 
-	exit
+	# Remove the old mmotti-regex file
+	[[ -e "${file_mmotti_regex}" ]] && sudo rm -f "${file_mmotti_regex}"
+
+	# Output regexps currently in the DB
+	echo $'\n'
+	echo 'These are your current regexps:'
+	fetchResults "domain" | sed 's/^/  /'
 else
 	if [[ -n "${str_regex}" ]]; then
 		# Restore config prior to previous install
