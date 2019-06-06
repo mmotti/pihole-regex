@@ -9,7 +9,7 @@ file_pihole_regex="/etc/pihole/regex.list"
 file_mmotti_regex="/etc/pihole/mmotti-regex.list"
 
 # Determine whether we are using Pi-hole DB
-if [[ -e "${db_gravity}" ]] && [[ -s "${db_gravity}" ]]; then
+if [[ -s "${db_gravity}" ]]; then
 	usingDB=true
 fi
 
@@ -97,7 +97,7 @@ if [[ "${usingDB}" == true ]]; then
 			# As we haven't yet migrated, we need to manually remove matches
 			# If we have a local mmotti-regex.list, read from that as it was used on the last install (pre-db)
 			# Otherwise, default to the latest remote copy
-			if [[ -e "${file_mmotti_regex}" ]] && [[ -s "${file_mmotti_regex}" ]]; then
+			if [[ -s "${file_mmotti_regex}" ]]; then
 				# Only return regexps in both the regex table and regex file
 				mapfile -t result <<< "$(comm -12 <(sort <<< "${str_regex}") <(sort < "${file_mmotti_regex}"))"
 
@@ -129,6 +129,9 @@ if [[ "${usingDB}" == true ]]; then
 	echo '[i] Refreshing Pi-hole'
 	pihole restartdns reload > /dev/null
 
+	# Remove the old mmotti-regex file
+	[[ -e "${file_mmotti_regex}" ]] && sudo rm -f "${file_mmotti_regex}"
+
 else
 	# Removal for standard regex.list (non-db)
 	# If the pihole regex.list is not empty
@@ -138,7 +141,6 @@ else
 		if [[ -s "${file_mmotti_regex}" ]]; then
 			echo "[i] Removing mmotti's regex.list from a previous install"
 			comm -23 <(sort <<< "${str_regex}") <(sort "${file_mmotti_regex}") | sudo tee $file_pihole_regex > /dev/null
-			sudo rm -f "${file_mmotti_regex}"
 		else
 			# In the event that file_mmotti_regex is not available
 			# Match against the latest remote list instead
@@ -153,6 +155,9 @@ else
 	# Refresh Pi-hole
 	echo "[i] Refreshing Pi-hole"
 	pihole restartdns reload > /dev/null
+
+	# Remove the old mmotti-regex file
+	[[ -e "${file_mmotti_regex}" ]] && sudo rm -f "${file_mmotti_regex}"
 
 	echo "[i] Done"
 fi

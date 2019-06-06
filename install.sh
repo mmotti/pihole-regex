@@ -8,7 +8,7 @@ file_mmotti_remote_regex='https://raw.githubusercontent.com/mmotti/pihole-regex/
 installer_comment='github.com/mmotti/pihole-regex'
 
 # Determine whether we are using Pi-hole DB
-if [[ -e "${db_gravity}" ]] && [[ -s "${db_gravity}" ]]; then
+if [[ -s "${db_gravity}" ]]; then
 	usingDB=true
 fi
 
@@ -142,7 +142,7 @@ if [[ "${usingDB}" == true ]]; then
 			# As we haven't yet migrated, we need to manually remove matches
 			# If we have a local mmotti-regex.list, read from that as it was used on the last install (pre-db)
 			# Otherwise, default to the latest remote copy
-			if [[ -e "${file_mmotti_regex}" ]] && [[ -s "${file_mmotti_regex}" ]]; then
+			if [[ -s "${file_mmotti_regex}" ]]; then
 				# Only return regexps in both the regex table and regex file
 				mapfile -t result <<< "$(comm -12 <(sort <<< "${str_regex}") <(sort < "${file_mmotti_regex}"))"
 
