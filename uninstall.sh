@@ -127,7 +127,7 @@ if [[ "${usingDB}" == true ]]; then
 
 	# Refresh Pi-hole
 	echo '[i] Refreshing Pi-hole'
-	sudo killall -SIGHUP pihole-FTL
+	pihole restartdns reload > /dev/null
 
 else
 	# Removal for standard regex.list (non-db)
@@ -152,7 +152,7 @@ else
 
 	# Refresh Pi-hole
 	echo "[i] Refreshing Pi-hole"
-	sudo killall -SIGHUP pihole-FTL
+	pihole restartdns reload > /dev/null
 
 	echo "[i] Done"
 fi

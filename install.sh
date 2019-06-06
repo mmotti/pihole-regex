@@ -189,7 +189,7 @@ if [[ "${usingDB}" == true ]]; then
 
 	# Refresh Pi-hole
 	echo '[i] Refreshing Pi-hole'
-	sudo killall -SIGHUP pihole-FTL
+	pihole restartdns reload > /dev/null
 
 	# Remove the old mmotti-regex file
 	[[ -e "${file_mmotti_regex}" ]] && sudo rm -f "${file_mmotti_regex}"
@@ -239,7 +239,7 @@ else
 
 	# Refresh Pi-hole
 	echo "[i] Refreshing Pi-hole"
-	sudo killall -SIGHUP pihole-FTL
+	pihole restartdns reload > /dev/null
 
 	echo "[i] Done"
 
