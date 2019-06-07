@@ -33,9 +33,9 @@ function fetchResults {
 
 	# Check exit status
 	status="$?"
-	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst fetching results'); exit 1; }
+	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst fetching results'); return 1; }
 
-	return
+	return 0
 }
 
 function updateDB() {
@@ -54,9 +54,9 @@ function updateDB() {
 
 	# Check exit status
 	status="$?"
-	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst updating database'); exit 1; }
+	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst updating database'); return 1; }
 
-	return
+	return 0
 }
 
 function generateCSV() {
@@ -69,8 +69,13 @@ function generateCSV() {
 	# Set local variables
 	remoteRegex="${1}"
 	timestamp="$(date --utc +'%s')"
-	iteration="$(fetchResults "id" "current_id")"
 	file_csv_tmp="$(mktemp -p "/tmp" --suffix=".csv")"
+	iteration="$(fetchResults "id" "current_id")"
+
+	# At this point we need to double check that there wasn't an error (rather than no result) when trying to
+	# retrieve the current iteration.
+	status="$?"
+	[[ "${status}" -ne 0 ]] && return 1
 
 	# Create array to hold import string
 	declare -a queryArr
@@ -90,12 +95,16 @@ function generateCSV() {
 	done <<< "${remoteRegex}"
 
 	# If our array is populated then output the results to a temporary file
-	[[ "${#queryArr[@]}" -gt 0 ]] && printf '%s\n' "${queryArr[@]}" > "${file_csv_tmp}" || exit 1
+	if [[ "${#queryArr[@]}" -gt 0 ]]; then
+		printf '%s\n' "${queryArr[@]}" > "${file_csv_tmp}"
+	else
+		return 1
+	fi
 
 	# Output the CSV path
 	echo "${file_csv_tmp}"
 
-	return
+	return 0
 }
 
 echo "[i] Fetching mmotti's regexps"
@@ -174,11 +183,13 @@ if [[ "${usingDB}" == true ]]; then
 	csv_file=$(generateCSV "${mmotti_remote_regex}")
 
 	# Conditional exit
-	[[ ! -s "${csv_file}" ]] && { echo '[i] Error: Generated CSV is empty'; exit 1; }
+	if [[ -z "${csv_file}" ]] || [[ ! -s "${csv_file}" ]]; then
+		echo '[i] Error: Generated CSV is empty'; exit 1;
+	fi
 
 	# Construct correct input format for import
 	echo '[i] Importing CSV to DB'
-	printf ".mode csv\\n.import \"%s\" %s\\n" "${csv_file}" "regex" | sudo sqlite3 "${db_gravity}"
+	printf ".mode csv\\n.import \"%s\" %s\\n" "${csv_file}" "regex" | sudo sqlite3 "${db_gravity}" 2>&1
 
 	# Check exit status
 	status="$?"
@@ -247,3 +258,5 @@ else
 	echo $'\n'
 	cat $file_pihole_regex
 fi
+
+exit 0
