@@ -14,7 +14,6 @@ if [[ -s "${db_gravity}" ]]; then
 fi
 
 # Functions
-# Functions
 function fetchResults {
 
 	local selection="${1}" action="${2}" queryStr
@@ -34,9 +33,9 @@ function fetchResults {
 
 	# Check exit status
 	status="$?"
-	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst fetching results'); exit 1; }
+	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst fetching results'); return 1; }
 
-	return
+	return 0
 }
 
 function updateDB() {
@@ -55,9 +54,9 @@ function updateDB() {
 
 	# Check exit status
 	status="$?"
-	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst updating database'); exit 1; }
+	[[ "${status}" -ne 0 ]]  && { (>&2 echo '[i] An error occured whilst updating database'); return 1; }
 
-	return
+	return 0
 }
 
 echo "[i] Fetching mmotti's regexps"
