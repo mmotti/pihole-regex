@@ -10,7 +10,6 @@ The installer will determine whether you are using the Pi-hole database or the o
 Yes, you can. You can enter them one by one in the Pi-hole web interface.
 
 ### [OPTIONAL] Back up your existing regex list
-**Note**: This command is only applicable to those of you who have not yet been migrated to the Pi-hole database.
 
 If you are using the new **Pi-hole DB**
 ```
