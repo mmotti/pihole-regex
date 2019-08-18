@@ -14,3 +14,4 @@
 ^stat(s|istics)?[0-9]*[-.]
 ^track(ers?|ing)?[0-9]*[-.]
 ^traff(ic)?[-.]
+.*\.g[0-9]+\..*
