@@ -6,6 +6,9 @@ All commands will need to be entered via Terminal (PuTTY or your SSH client of c
 ### Why use the installer?
 The installer will determine whether you are using the Pi-hole database or the older style regex.list, then evaluate your current regular expressions and act accordingly. It has been created to make life easier.
 
+### Why is root (sudo) required by the installer?
+At the time of the scripts creation, it is necessary to run as root in order to modify files in `/etc/pihole` (`regex.list` and `gravity.db`)
+
 ### Can I use these regexps without using the installer?
 Yes, you can. You can enter them one by one in the Pi-hole web interface.
 
@@ -23,10 +26,10 @@ sudo cp /etc/pihole/regex.list /etc/pihole/regex.list.bak
 
 ### Installation
 ```
-curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install.sh | bash 
+curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install.py | sudo python3
 ```
 
 ### Removal
 ```
-curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/uninstall.sh | bash
+curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/uninstall.py | sudo python3
 ```
