@@ -40,6 +40,8 @@ def connectDB(db):
     if not db:
         return
 
+    conn = None
+
     try:
         conn = sqlite3.connect(db)
     except sqlite3.Error as e:
@@ -90,7 +92,7 @@ str_regexps_remote = fetch_url(url_regexps_remote)
 
 # If regexps were fetched, remove any comments and add to set
 if str_regexps_remote:
-    regexps_remote.update(x for x in str_regexps_remote.splitlines() if x and x[1] != '#')
+    regexps_remote.update(x for x in str_regexps_remote.splitlines() if x and x[:1] != '#')
     print(f'[i] {len(regexps_remote)} regexps collected from {url_regexps_remote}')
 else:
     print('[i] No remote regexps were found.')
@@ -146,7 +148,7 @@ else:
     if os.path.isfile(path_legacy_regex) and os.path.getsize(path_legacy_regex) > 0:
         print('[i] Collecting existing entries from regex.list')
         with open(path_legacy_regex, 'r') as fRead:
-            regexps_local.update(x for x in (x.strip() for x in fRead) if x and x[0] != '#')
+            regexps_local.update(x for x in (x.strip() for x in fRead) if x and x[:1] != '#')
 
     if regexps_local:
         print(f'[i] {len(regexps_local)} existing regexps identified')
@@ -154,7 +156,7 @@ else:
         if os.path.isfile(path_legacy_mmotti_regex) and os.path.getsize(path_legacy_regex) > 0:
             print('[i] Existing mmotti-regex install identified')
             with open(path_legacy_mmotti_regex, 'r') as fOpen:
-                regexps_legacy.update(x for x in (x.strip() for x in fOpen) if x and x[0] != '#')
+                regexps_legacy.update(x for x in (x.strip() for x in fOpen) if x and x[:1] != '#')
 
                 if regexps_legacy:
                     print('[i] Removing previously installed regexps')
