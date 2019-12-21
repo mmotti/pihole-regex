@@ -35,21 +35,6 @@ def fetch_url(url):
     return response
 
 
-def connectDB(db):
-
-    if not db:
-        return
-
-    conn = None
-
-    try:
-        conn = sqlite3.connect(db)
-    except sqlite3.Error as e:
-        print(e)
-
-    return conn
-
-
 url_regexps_remote = 'https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list'
 path_pihole = r'/etc/pihole'
 path_legacy_regex = os.path.join(path_pihole, 'regex.list')
@@ -99,7 +84,13 @@ else:
 if db_exists:
     # Create a DB connection
     print(f'[i] Connecting to {path_pihole_db}')
-    conn = connectDB(path_pihole_db)
+
+    try:
+        conn = sqlite3.connect(path_pihole_db)
+    except sqlite3.Error as e:
+        print(e)
+        exit(1)
+
     # Create a cursor object
     c = conn.cursor()
 
@@ -113,7 +104,7 @@ if db_exists:
     conn.commit()
 
     print('[i] Restarting Pi-hole')
-    subprocess.run(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
+    subprocess.call(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
 
     # Prepare final result
     print('[i] Done - Please see your installed regexps below\n')
@@ -143,6 +134,9 @@ else:
                 if regexps_legacy:
                     print(f'[i] Removing regexps found in {path_legacy_mmotti_regex}')
                     regexps_local.difference_update(regexps_legacy)
+
+            # Remove mmotti-regex.list as it will no longer be required
+            os.remove(path_legacy_mmotti_regex)
         else:
             print('[i] Removing regexps that match the remote repo')
             regexps_local.difference_update(regexps_remote)
@@ -154,7 +148,7 @@ else:
             fWrite.write(f'{line}\n')
 
     print('[i] Restarting Pi-hole')
-    subprocess.run(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
+    subprocess.call(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
 
     # Prepare final result
     print('[i] Done - Please see your installed regexps below\n')

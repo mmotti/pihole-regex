@@ -35,21 +35,6 @@ def fetch_url(url):
     return response
 
 
-def connectDB(db):
-
-    if not db:
-        return
-
-    conn = None
-
-    try:
-        conn = sqlite3.connect(db)
-    except sqlite3.Error as e:
-        print(e)
-
-    return conn
-
-
 url_regexps_remote = 'https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list'
 path_pihole = r'/etc/pihole'
 path_legacy_regex = os.path.join(path_pihole, 'regex.list')
@@ -101,7 +86,13 @@ else:
 if db_exists:
     # Create a DB connection
     print(f'[i] Connecting to {path_pihole_db}')
-    conn = connectDB(path_pihole_db)
+
+    try:
+        conn = sqlite3.connect(path_pihole_db)
+    except sqlite3.Error as e:
+        print(e)
+        exit(1)
+
     # Create a cursor object
     c = conn.cursor()
 
@@ -130,8 +121,12 @@ if db_exists:
         c.executemany('DELETE FROM domainlist WHERE type = 3 AND domain in (?)', [(x,) for x in sorted(regexps_remove)])
         conn.commit()
 
+    # Delete mmotti-regex.list as if we've migrated to the db, it's no longer needed
+    if os.path.exists(path_legacy_mmotti_regex):
+        os.remove(path_legacy_mmotti_regex)
+
     print('[i] Restarting Pi-hole')
-    subprocess.run(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
+    subprocess.call(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
 
     # Prepare final result
     print('[i] Done - Please see your installed regexps below\n')
@@ -167,13 +162,16 @@ else:
     regexps_local.update(regexps_remote)
 
     # Output to regex.list
+    # Output to mmotti-regex.list (for future updates / uninstall)
     print(f'[i] Outputting {len(regexps_local)} regexps to {path_legacy_regex}')
-    with open(path_legacy_regex, 'w') as fWrite:
-        for line in sorted(regexps_local):
-            fWrite.write(f'{line}\n')
+    with open(path_legacy_regex, 'w') as fWrite1:
+        with open(path_legacy_mmotti_regex, 'w') as fWrite2:
+            for line in sorted(regexps_local):
+                fWrite1.write(f'{line}\n')
+                fWrite2.write(f'{line}\n')
 
     print('[i] Restarting Pi-hole')
-    subprocess.run(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
+    subprocess.call(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
 
     # Prepare final result
     print('[i] Done - Please see your installed regexps below\n')
