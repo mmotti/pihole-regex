@@ -44,6 +44,8 @@ install_comment = 'github.com/mmotti/pihole-regex'
 
 
 db_exists = False
+conn = None
+c = None
 
 regexps_remote = set()
 regexps_local = set()
@@ -162,13 +164,16 @@ else:
     regexps_local.update(regexps_remote)
 
     # Output to regex.list
-    # Output to mmotti-regex.list (for future updates / uninstall)
     print(f'[i] Outputting {len(regexps_local)} regexps to {path_legacy_regex}')
-    with open(path_legacy_regex, 'w') as fWrite1:
-        with open(path_legacy_mmotti_regex, 'w') as fWrite2:
-            for line in sorted(regexps_local):
-                fWrite1.write(f'{line}\n')
-                fWrite2.write(f'{line}\n')
+    with open(path_legacy_regex, 'w') as fWrite:
+        for line in sorted(regexps_local):
+            fWrite.write(f'{line}\n')
+
+    # Output mmotti remote regexps to mmotti-regex.list
+    # for future install / uninstall
+    with open(path_legacy_mmotti_regex, 'w') as fWrite:
+        for line in sorted(regexps_remote):
+            fWrite.write(f'{line}\n')
 
     print('[i] Restarting Pi-hole')
     subprocess.call(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
