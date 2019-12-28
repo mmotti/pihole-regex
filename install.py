@@ -100,12 +100,25 @@ if db_exists:
 
     # Add / update remote regexps
     print('[i] Adding / updating regexps in the DB')
-    c.executemany('INSERT INTO domainlist (type, domain, enabled, comment) '
-                  'VALUES (3, ?, 1, ?) '
-                  'ON CONFLICT(domain) DO UPDATE SET '
-                  'comment = excluded.comment '
-                  'WHERE comment != excluded.comment',
-                  [(x, install_comment) for x in sorted(regexps_remote)])
+
+    # Check for SQLite version
+    sqlite3_major, sqlite3_minor, sqlite3_revision = sqlite3.sqlite_version_info
+
+    # If SQLite version < 3.24 (required for UPSERT)
+    if sqlite3_major == 3 and sqlite3_minor < 24:
+        c.executemany('INSERT OR IGNORE INTO domainlist (type, domain, enabled, comment) '
+                      'VALUES (3, ?, 1, ?)',
+                      [(x, install_comment) for x in sorted(regexps_remote)])
+        c.executemany('UPDATE domainlist '
+                      'SET comment = ? WHERE domain in (?) AND comment != ?',
+                      [(install_comment, x, install_comment) for x in sorted(regexps_remote)])
+    else:
+        c.executemany('INSERT INTO domainlist (type, domain, enabled, comment) '
+                      'VALUES (3, ?, 1, ?) '
+                      'ON CONFLICT(domain) DO UPDATE SET '
+                      'comment = excluded.comment '
+                      'WHERE comment != excluded.comment',
+                      [(x, install_comment) for x in sorted(regexps_remote)])
     conn.commit()
 
     # Fetch all current mmotti regexps in the local db
