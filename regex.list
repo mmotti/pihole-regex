@@ -9,6 +9,7 @@
 ^banners?[-.]
 ^beacons?[0-9]*[-.]
 ^count(ers?)?[0-9]*[-.]
+^mads\.
 ^pixels?[-.]
 ^stat(s|istics)?[0-9]*[-.]
 ^track(ers?|ing)?[0-9]*[-.]
