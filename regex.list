@@ -14,4 +14,3 @@
 ^pixels?[-.]
 ^stat(s|istics)?[0-9]*[_.-]
 ^track(ers?|ing)?[0-9]*[_.-]
-^traff(ic)?[.-]
