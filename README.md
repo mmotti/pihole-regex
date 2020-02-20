@@ -1,6 +1,8 @@
 ## Regex Filters for Pi-hole
 This is a custom regex filter file for use with Pi-hole v4+ (FTLDNS).
 
+There is also a separate, optional regex filter for [Facebook](https://github.com/mmotti/pihole-regex/tree/master/social%20media) which will be separate to the installer and each entry will need to be added manually.
+
 All commands will need to be entered via Terminal (PuTTY or your SSH client of choice) after logging in.
 
 ### Why use the installer?
