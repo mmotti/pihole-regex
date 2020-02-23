@@ -1,7 +1,7 @@
 ## Regex Filters for Pi-hole
 This is a custom regex filter file for use with Pi-hole v4+ (FTLDNS).
 
-There is also a separate, optional regex filter for [Facebook](https://github.com/mmotti/pihole-regex/tree/master/social%20media) which will be separate to the installer and each entry will need to be added manually.
+There is also an optional regex filter for [Facebook](https://github.com/mmotti/pihole-regex/tree/master/social%20media) which will be separate to the installer and each entry will need to be added manually.
 
 All commands will need to be entered via Terminal (PuTTY or your SSH client of choice) after logging in.
 
@@ -10,6 +10,8 @@ The installer will determine whether you are using the Pi-hole database or the o
 
 #### Installer Requirements
 This script requires [**Python 3.6+**](https://github.com/mmotti/pihole-regex/issues/16) in order to run correctly. It has been written and tested for Raspbian Buster and Ubuntu Server.
+
+If you experience **syntax errors** due to the use of f-strings, this is likely because your installed version of Python is **below 3.6**.
 
 #### Why is root (sudo) required by the installer?
 At the time of the scripts creation, it is necessary to run as root in order to modify files in `/etc/pihole` (`regex.list` and `gravity.db`)
@@ -34,7 +36,7 @@ sudo cp /etc/pihole/regex.list /etc/pihole/regex.list.bak
 curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install.py | sudo python3
 ```
 
-#### Keeping regexps up-to-date
+#### OPTIONAL: Keeping regexps up-to-date
 The following instructions will create a cron job to run each morning at 02:45 (adjust the time to suit your needs):
 
 1. Edit the root user's crontab (`sudo crontab -u root -e`)
