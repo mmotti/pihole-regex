@@ -79,7 +79,7 @@ str_regexps_remote = fetch_url(url_regexps_remote)
 
 # If regexps were fetched, remove any comments and add to set
 if str_regexps_remote:
-    regexps_remote.update(x for x in str_regexps_remote.splitlines() if x and x[:1] != '#')
+    regexps_remote.update(x for x in map(str.strip, str_regexps_remote.splitlines()) if x and x[:1] != '#')
     print(f'[i] {len(regexps_remote)} regexps collected from {url_regexps_remote}')
 else:
     print('[i] No remote regexps were found.')
