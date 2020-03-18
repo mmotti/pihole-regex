@@ -47,7 +47,7 @@ db_exists = False
 
 regexps_remote = set()
 regexps_local = set()
-regexps_legacy = set()
+regexps_legacy_mmotti = set()
 
 # Check that pi-hole path exists
 if os.path.exists(path_pihole):
@@ -99,7 +99,7 @@ if db_exists:
     c.executemany('DELETE FROM domainlist '
                   'WHERE type = 3 '
                   'AND (domain in (?) OR comment = ?)',
-                  [(x, install_comment) for x in sorted(regexps_remote)])
+                  [(x, install_comment) for x in regexps_remote])
 
     conn.commit()
 
@@ -118,22 +118,25 @@ if db_exists:
     conn.close()
 
 else:
+    # If regex.list exists and is not empty
+    # Read it and add to a set
     if os.path.isfile(path_legacy_regex) and os.path.getsize(path_legacy_regex) > 0:
         print('[i] Collecting existing entries from regex.list')
         with open(path_legacy_regex, 'r') as fRead:
-            regexps_local.update(x for x in (x.strip() for x in fRead) if x and x[:1] != '#')
+            regexps_local.update(x for x in map(str.strip, fRead) if x and x[:1] != '#')
 
+    # If the local regexp set is not empty
     if regexps_local:
         print(f'[i] {len(regexps_local)} existing regexps identified')
-        # If we have a record of the previous install remove the install items from the set
-        if os.path.isfile(path_legacy_mmotti_regex) and os.path.getsize(path_legacy_regex) > 0:
+        # If we have a record of the previous legacy install
+        if os.path.isfile(path_legacy_mmotti_regex) and os.path.getsize(path_legacy_mmotti_regex) > 0:
             print('[i] Existing mmotti-regex install identified')
             with open(path_legacy_mmotti_regex, 'r') as fOpen:
-                regexps_legacy.update(x for x in (x.strip() for x in fOpen) if x and x[:1] != '#')
+                regexps_legacy_mmotti.update(x for x in map(str.strip, fOpen) if x and x[:1] != '#')
 
-                if regexps_legacy:
+                if regexps_legacy_mmotti:
                     print(f'[i] Removing regexps found in {path_legacy_mmotti_regex}')
-                    regexps_local.difference_update(regexps_legacy)
+                    regexps_local.difference_update(regexps_legacy_mmotti)
 
             # Remove mmotti-regex.list as it will no longer be required
             os.remove(path_legacy_mmotti_regex)
