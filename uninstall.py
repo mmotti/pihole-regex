@@ -49,19 +49,19 @@ regexps_remote = set()
 regexps_local = set()
 regexps_legacy = set()
 
-# Exit if not running as root
-if not os.getuid() == 0:
-    print('Please run this script as root')
-    exit(1)
-else:
-    print('[i] Root user detected')
-
-# Exit if Pi-hole dir does not exist
-if not os.path.exists(path_pihole):
-    print(f'{path_pihole} was not found')
-    exit(1)
-else:
+# Check that pi-hole path exists
+if os.path.exists(path_pihole):
     print('[i] Pi-hole path exists')
+else:
+    print(f'[e] {path_pihole} was not found')
+    exit(1)
+
+# Check for write access to /etc/pihole
+if os.access(path_pihole, os.X_OK | os.W_OK):
+    print(f'[i] Write access to {path_pihole} verified')
+else:
+    print(f'[e] Write access is not available for {path_pihole}. Please run as root or other privileged user')
+    exit(1)
 
 # Determine whether we are using DB or not
 if os.path.isfile(path_pihole_db) and os.path.getsize(path_pihole_db) > 0:
