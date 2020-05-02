@@ -57,14 +57,14 @@ regexps_remove = set()
 if os.path.exists(path_pihole):
     print('[i] Pi-hole path exists')
 else:
-    printf('[e] {path_pihole} was not found')
+    print('[e] {path_pihole} was not found')
     exit(1)
 
 # Check for write access to /etc/pihole
 if os.access(path_pihole, os.X_OK | os.W_OK):
-    printf('[i] Write access to {path_pihole} verified')
+    print('[i] Write access to {path_pihole} verified')
 else:
-    printf('[e] Write access is not available for {path_pihole}. Please run as root or other privileged user')
+    print('[e] Write access is not available for {path_pihole}. Please run as root or other privileged user')
     exit(1)
 
 # Determine whether we are using DB or not
@@ -80,14 +80,14 @@ str_regexps_remote = fetch_url(url_regexps_remote)
 # If regexps were fetched, remove any comments and add to set
 if str_regexps_remote:
     regexps_remote.update(x for x in map(str.strip, str_regexps_remote.splitlines()) if x and x[:1] != '#')
-    printf('[i] {len(regexps_remote)} regexps collected from {url_regexps_remote}')
+    print('[i] {len(regexps_remote)} regexps collected from {url_regexps_remote}')
 else:
     print('[i] No remote regexps were found.')
     exit(1)
 
 if db_exists:
     # Create a DB connection
-    printf('[i] Connecting to {path_pihole_db}')
+    print('[i] Connecting to {path_pihole_db}')
 
     try:
         conn = sqlite3.connect(path_pihole_db)
@@ -153,7 +153,7 @@ else:
 
     # If the local regexp set is not empty
     if regexps_local:
-        printf('[i] {len(regexps_local)} existing regexps identified')
+        print('[i] {len(regexps_local)} existing regexps identified')
         # If we have a record of a previous legacy install
         if os.path.isfile(path_legacy_mmotti_regex) and os.path.getsize(path_legacy_mmotti_regex) > 0:
             print('[i] Existing mmotti-regex install identified')
@@ -166,20 +166,20 @@ else:
                     regexps_local.difference_update(regexps_legacy_mmotti)
 
     # Add remote regexps to local regexps
-    printf('[i] Syncing with {url_regexps_remote}')
+    print('[i] Syncing with {url_regexps_remote}')
     regexps_local.update(regexps_remote)
 
     # Output to regex.list
-    printf('[i] Outputting {len(regexps_local)} regexps to {path_legacy_regex}')
+    print('[i] Outputting {len(regexps_local)} regexps to {path_legacy_regex}')
     with open(path_legacy_regex, 'w') as fWrite:
         for line in sorted(regexps_local):
-            fWrite.write(f'{line}\n')
+            fWrite.write('{line}\n')
 
     # Output mmotti remote regexps to mmotti-regex.list
     # for future install / uninstall
     with open(path_legacy_mmotti_regex, 'w') as fWrite:
         for line in sorted(regexps_remote):
-            fWrite.write(f'{line}\n')
+            fWrite.write('{line}\n')
 
     print('[i] Restarting Pi-hole')
     subprocess.call(['pihole', 'restartdns', 'reload'], stdout=subprocess.DEVNULL)
