@@ -57,14 +57,14 @@ regexps_remove = set()
 if os.path.exists(path_pihole):
     print('[i] Pi-hole path exists')
 else:
-    print(f'[e] {path_pihole} was not found')
+    printf('[e] {path_pihole} was not found')
     exit(1)
 
 # Check for write access to /etc/pihole
 if os.access(path_pihole, os.X_OK | os.W_OK):
-    print(f'[i] Write access to {path_pihole} verified')
+    printf('[i] Write access to {path_pihole} verified')
 else:
-    print(f'[e] Write access is not available for {path_pihole}. Please run as root or other privileged user')
+    printf('[e] Write access is not available for {path_pihole}. Please run as root or other privileged user')
     exit(1)
 
 # Determine whether we are using DB or not
