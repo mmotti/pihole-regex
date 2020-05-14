@@ -2,10 +2,10 @@
 This is a custom regex filter file for use with Pi-hole v4+ (FTLDNS).
 
 There are also some optional regex filters separate to the main installer that can be added manually (if desired):
-* [Facebook](https://github.com/mmotti/pihole-regex/tree/master/social%20media)
-* [Internationalized Domain Names](https://github.com/mmotti/pihole-regex/tree/master/internationalized%20domains)
+* [Facebook](https://github.com/mmotti/pihole-regex/tree/master/social_media)
+* [Internationalized Domain Names](https://github.com/mmotti/pihole-regex/tree/master/internationalized_domains)
 * [Miscellaneous Items](https://github.com/mmotti/pihole-regex/tree/master/miscellaneous)
-* [User Suggested](https://github.com/mmotti/pihole-regex/tree/master/miscellaneous/user%20suggested)
+* [User Suggested](https://github.com/mmotti/pihole-regex/tree/master/miscellaneous/user_suggested)
 
 All commands will need to be entered via Terminal (PuTTY or your SSH client of choice) after logging in and [**Python 3.6+**](https://github.com/mmotti/pihole-regex/issues/16) is required.
 
