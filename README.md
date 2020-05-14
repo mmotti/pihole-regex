@@ -15,8 +15,7 @@ curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install.p
 curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/uninstall.py | sudo python3
 ```
 
-### Adding a cron job to keep up-to-date
-
+### Keep regexps up-to-date with cron (optional)
 The following instructions will create a cron job to run every monday at 02:30 (adjust the time to suit your needs):
 
 1. Edit the root user's crontab (`sudo crontab -u root -e`)
@@ -29,7 +28,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ```
 3. Save changes
 
-#### Removing the cron job (if you created one)
+#### Removing the manually created cron job
 If this script is the only thing you've added to the root user's crontab, you can run:
 
 `sudo crontab -u root -r`
