@@ -1,1 +1,1 @@
-^([^.]+\.)?(facebook|fb(cdn|sbx)?|tfbnw)\.[^.]+$
+^(.+[_.-])?(facebook|fb(cdn|sbx)?|tfbnw)\.[^.]+$
