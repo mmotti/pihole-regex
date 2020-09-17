@@ -18,6 +18,9 @@ curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install.p
 curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/uninstall.py | sudo python3
 ```
 
+### False Positives ###
+Due to the restrictive nature of these regexps, you may encounter a small number of false positives for domain names that are similar to ad-serving / tracking domains. I have created a [whitelist file](https://raw.githubusercontent.com/mmotti/pihole-regex/master/whitelist.list) to populate with user reported false positives. Please note that this file is not currently referenced during installation and is intended to be used only if you experience issues or for reference purposes.
+
 ### Keep regexps up-to-date with cron (optional)
 The following instructions will create a cron job to run every monday at 02:30 (adjust the time to suit your needs):
 
