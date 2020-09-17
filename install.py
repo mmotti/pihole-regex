@@ -29,7 +29,7 @@ def fetch_url(url):
     # If there is data
     if response:
         # Strip leading and trailing whitespace
-        response = '\n'.join(x.strip() for x in response.splitlines())
+        response = '\n'.join(x for x in map(str.strip, response.splitlines()))
 
     # Return the hosts
     return response
