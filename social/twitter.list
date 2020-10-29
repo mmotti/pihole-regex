@@ -1,0 +1,2 @@
+# As suggested by @mettacrawler (https://github.com/mettacrawler)
+^(.+[_.-])?(twitter|twimg|cms-twdigitalassets)\.(co\.)?[^.]+$
