@@ -83,7 +83,7 @@ if docker_id:
     if docker_mnt_src:
         print('[i] Running in docker installation mode')
         # Prepend restart commands
-        cmd_restart[0:0] = ['docker', 'exec', '-it', 'pihole']
+        cmd_restart[0:0] = ['docker', 'exec', '-i', 'pihole']
 else:
     print('[i] Running in physical installation mode ')
 
