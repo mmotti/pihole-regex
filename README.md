@@ -1,7 +1,7 @@
 ## Regex Filters for Pi-hole
 This is a custom regex filter file for use with Pi-hole v4+ (FTLDNS).
 
-The purpose of this list is to compliment your existing blocklists using powerful regular expressions that can cover a very broad range of domains. A single regular expression can block thousands of 'bad' domains, and may even accommodate for domains that follow a specified pattern that may not yet exist on a standard blocklist.
+The purpose of this list is to compliment your existing blocklists using powerful regular expressions that can cover a very broad range of domains. A single regular expression can block thousands of 'bad' domains, and can even accommodate for domains following specific patterns that may not even (yet) exist on standard blocklists.
 
 There are also some optional regex filters separate to the main installer that can be added manually (if desired):
 * [Facebook](https://github.com/mmotti/pihole-regex/tree/master/social)
