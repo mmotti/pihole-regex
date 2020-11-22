@@ -1,3 +1,4 @@
+import json
 import os
 import sqlite3
 import subprocess
@@ -56,6 +57,7 @@ print('[i] Checking for "pihole" docker container')
 # Initialise the docker variables
 docker_id = None
 docker_mnt = None
+docker_mnt_src = None
 
 # Check to see whether the default "pihole" docker container is active
 try:
@@ -67,10 +69,18 @@ except FileNotFoundError:
 
 # If a pihole docker container was found, locate the first mount
 if docker_id:
-    docker_mnt = subprocess.run(['docker', 'inspect', '--format', '{{ (index .Mounts 0).Source }}', docker_id],
+    docker_mnt = subprocess.run(['docker', 'inspect', '--format', '{{ (json .Mounts) }}', docker_id],
                                 stdout=subprocess.PIPE, universal_newlines=True).stdout.strip()
+    # Convert output to JSON and iterate through each dict
+    for json_dict in json.loads(docker_mnt):
+        # If this mount's destination is /etc/pihole
+        if json_dict['Destination'] == r'/etc/pihole':
+            # Use the source path as our target
+            docker_mnt_src = json_dict['Source']
+            break
+
     # If we successfully found the mount
-    if docker_mnt:
+    if docker_mnt_src:
         print('[i] Running in docker installation mode')
         # Prepend restart commands
         cmd_restart[0:0] = ['docker', 'exec', '-it', 'pihole']
@@ -78,7 +88,7 @@ else:
     print('[i] Running in physical installation mode ')
 
 # Set paths
-path_pihole = docker_mnt if docker_mnt else r'/etc/pihole'
+path_pihole = docker_mnt_src if docker_mnt_src else r'/etc/pihole'
 path_legacy_regex = os.path.join(path_pihole, 'regex.list')
 path_legacy_mmotti_regex = os.path.join(path_pihole, 'mmotti-regex.list')
 path_pihole_db = os.path.join(path_pihole, 'gravity.db')
