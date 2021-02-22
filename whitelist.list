@@ -6,6 +6,8 @@
 # you will need the add them manually to your Pi-hole installation.
 
 anti-ad.net
-www.ad.nl
 iij.ad.jp
+stats.foldingathome.org
+stats.stackexchange.com
+www.ad.nl
 www.iij.ad.jp
