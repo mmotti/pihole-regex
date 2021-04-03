@@ -12,4 +12,5 @@ iij.ad.jp \
 stats.foldingathome.org \
 stats.stackexchange.com \
 www.ad.nl \
-www.iij.ad.jp
+www.iij.ad.jp \
+support.iam.ad.azure.com
