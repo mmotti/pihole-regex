@@ -33,6 +33,7 @@ The following instructions will create a cron job to run every monday at 02:30 (
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 30 2 * * 1 /usr/bin/curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install.py | /usr/bin/python3
+35 2 * * 1 /usr/bin/curl -sSl https://raw.githubusercontent.com/mmotti/pihole-regex/master/install_whitelist.sh | /bin/bash
 ```
 3. Save changes
 
