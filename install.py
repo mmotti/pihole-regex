@@ -78,14 +78,6 @@ for docker_id in docker_ids:
             docker_mnt_srcs.append(json_dict['Source'])
             break
 
-# If we successfully found the mount
-if docker_mnt_srcs:
-    print('[i] Running in docker installation mode')
-    # Prepend restart commands
-    cmd_restart[0:0] = ['docker', 'exec', '-i', 'pihole']
-else:
-    print('[i] Running in physical installation mode ')
-
 def update_regex(path_pihole):
     # Set paths
     path_legacy_regex = os.path.join(path_pihole, 'regex.list')
@@ -230,7 +222,11 @@ def update_regex(path_pihole):
                 print(line, end='')
 
 if docker_mnt_srcs:
+    print('[i] Running in docker installation mode')
+    # Prepend restart commands
+    cmd_restart[0:0] = ['docker', 'exec', '-i', 'pihole']
     for docker_mnt_src in docker_mnt_srcs:
         update_regex(docker_mnt_src)
 else:
+    print('[i] Running in physical installation mode ')
     update_regex('/etc/pihole')
