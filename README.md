@@ -44,3 +44,16 @@ If this script is the only thing you've added to the root user's crontab, you ca
 Otherwise, run:
 
 `sudo crontab -u root -e` and remove the three lines listed above in the install instructions.
+
+#### Using the command with other regex files
+
+Install example with the no-google list:
+
+```
+curl -sSl https://raw.githubusercontent.com/nickspaargaren/pihole-regex/args/install.py | sudo python3 /dev/stdin --list https://raw.githubusercontent.com/nickspaargaren/no-google/master/regex.list --comment github.com/nickspaargaren/no-google
+```
+
+| Subcommand  | Description                |
+| ----------- | -------------------------- |
+| --list      | List of the regex document |
+| --comment   | RegEx comment in Pi-Hole   |
